@@ -16,18 +16,20 @@ export async function POST(request: Request) {
     }
 
     console.log('Calling OpenRouter API...');
-    const response = await fetch('https://openrouter.ai/api/v1/', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'http://localhost:3000', // Replace with your site URL
+        'X-Title': 'AI Paper Editor', // Replace with your site name
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek-ai/deepseek-r1-zero', // Use DeepSeek R1 Zero model
+        model: 'deepseek/deepseek-r1-distill-llama-70b:free', // Correct model name
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful AI that rewrites text based on user instructions.',
+            content: 'You are a writer, based on the given prompt you have to rewrite the text. do not write anything other than the output of the prompt. also do not answer anything out of the context',
           },
           {
             role: 'user',
@@ -39,13 +41,17 @@ export async function POST(request: Request) {
 
     console.log('OpenRouter API response status:', response.status);
 
+    // Log the raw response text
+    const rawResponseText = await response.text();
+    // console.log('Raw OpenRouter API response:', rawResponseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenRouter API error:', errorText);
-      throw new Error(`OpenRouter API error: ${errorText}`);
+      console.error('OpenRouter API error:', rawResponseText);
+      throw new Error(`OpenRouter API error: ${rawResponseText}`);
     }
 
-    const data = await response.json();
+    // Parse the JSON response
+    const data = JSON.parse(rawResponseText);
     console.log('OpenRouter API response data:', data);
 
     const output = data.choices[0].message.content;

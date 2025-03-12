@@ -1,6 +1,8 @@
-'use client'; // Mark as a Client Component
+'use client';
 
 import { useState } from 'react';
+import { Button } from './ui/button'; // shadcn/ui button
+import { Input } from './ui/input'; // shadcn/ui input
 
 export default function OutputSection({ selectedText }: { selectedText: string }) {
   const [output, setOutput] = useState('');
@@ -13,7 +15,6 @@ export default function OutputSection({ selectedText }: { selectedText: string }
     }
 
     try {
-      console.log('Calling /api/generate with:', { prompt, selectedText });
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
@@ -22,18 +23,16 @@ export default function OutputSection({ selectedText }: { selectedText: string }
         body: JSON.stringify({ prompt, selectedText }),
       });
 
-      console.log('API response status:', response.status);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API error:', errorText);
-        throw new Error(`API error: ${errorText}`);
+        throw new Error(`API error: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('API response data:', data);
+      const cleanedOutput = data.output
+        .replace(/\\boxed{/g, '')
+        .replace(/}/g, '');
 
-      setOutput(data.output);
+      setOutput(cleanedOutput);
     } catch (error) {
       console.error('Error generating output:', error);
       alert('Failed to generate output. Please try again.');
@@ -41,24 +40,24 @@ export default function OutputSection({ selectedText }: { selectedText: string }
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Output</h2>
-      <div className="h-64 p-4 border border-gray-300 rounded-lg mb-4">
+    <div className="bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-lg shadow-md p-6 ">
+      <h2 className="text-xl font-semibold text-gray-900 mb-4">Output</h2>
+      <div className="min-h-64 h-auto p-4 border border-gray-200 rounded-lg mb-4 bg-gray-50/50">
         {output || 'AI-generated output will appear here...'}
       </div>
-      <input
+      <Input
         type="text"
-        className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+        className="w-full mb-4"
         placeholder="Enter prompt (e.g., make it professional)"
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
       />
-      <button
-        className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+      <Button
+        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
         onClick={handleGenerate}
       >
         Generate
-      </button>
+      </Button>
     </div>
   );
 }
