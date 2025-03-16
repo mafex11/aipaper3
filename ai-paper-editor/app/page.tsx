@@ -41,12 +41,10 @@ function Navbar({ className }: { className?: string }) {
 export default function Home() {
   return (
     <BackgroundGradientAnimation className="mx-auto">
-      {/* Navbar */}
       <div className="relative w-full flex items-center justify-center">
         <Navbar className="top-2" />
       </div>
 
-      {/* Main Content */}
       <div className="absolute z-50 inset-0 flex flex-col items-center justify-center text-white font-bold px-4 text-center">
         <p className="bg-clip-text text-transparent drop-shadow-2xl bg-gradient-to-b from-white/80 to-white/20 text-6xl md:text-8xl">
           Kaku
@@ -55,7 +53,6 @@ export default function Home() {
           Your Own Paper Editor
         </h2>
         
-        {/* Get Started Button */}
         <Link href="/Edit">
           <Button variant="outline" className="mt-6 text-black cursor-pointer">
             Get Started
